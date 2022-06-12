@@ -1,0 +1,56 @@
+{"traces":
+[
+[
+    {"Bob": 1, "Guard":1, "Time":51},
+    {"Bob": 2, "Guard":2, "Time":50},
+    {"Bob": 2, "Guard":3, "Time":49}
+],
+[
+    {"Bob": 1, "Guard":1, "Time":51},
+    {"Bob": 2, "Guard":2, "Time":50},
+    {"Bob": 3, "Guard":3, "Time":49}
+],
+[
+    {"Bob": 1, "Guard":1, "Time":51},
+    {"Bob": 1, "Guard":2, "Time":50},
+    {"Bob": 1, "Guard":3, "Time":49}
+],
+[
+    {"Bob": 1, "Guard":5, "Time":51},
+    {"Bob": 2, "Guard":4, "Time":50},
+    {"Bob": 2, "Guard":3, "Time":49}
+],
+[
+    {"Bob": 1, "Guard":1, "Time":51},
+    {"Bob": 2, "Guard":2, "Time":50},
+    {"Bob": 1, "Guard":3, "Time":49}
+],
+[
+    {"Bob": 1, "Guard":2, "Time":51},
+    {"Bob": 2, "Guard":3, "Time":50},
+    {"Bob": 2, "Guard":4, "Time":49}
+],
+[
+    {"Bob": 1, "Guard":2, "Time":51},
+    {"Bob": 2, "Guard":2, "Time":50},
+    {"Bob": 2, "Guard":2, "Time":49}
+],
+[
+    {"Bob": 1, "Guard":3, "Time":51},
+    {"Bob": 2, "Guard":2, "Time":50},
+    {"Bob": 2, "Guard":2, "Time":49}
+],
+[
+    {"Bob": 1, "Guard":1, "Time":51},
+    {"Bob": 1, "Guard":2, "Time":50},
+    {"Bob": 2, "Guard":3, "Time":49}
+],
+[
+    {"Bob": 1, "Guard":1, "Time":51},
+    {"Bob": 2, "Guard":2, "Time":50},
+    {"Bob": 3, "Guard":2, "Time":49}
+]
+], 
+"distances":
+[0, 1,3,6,2,3,2,3,1,2]
+}
