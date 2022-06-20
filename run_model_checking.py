@@ -61,14 +61,16 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
                             shell = True)
     output = result.stdout.read()
     # print(f"\n\n This is teh outuput \n {output}\n output ends \n\n")
-    res_expr = re.compile("Result: ([\d.+])")
+    res_expr = re.compile("Result: ([\d.]+)")
     res_output = res_expr.findall(output)
     result_pmin, result_pmax, result_rmax = res_output
 
-    """result_position = output.rfind("Result: ")
+    """
+    result_position = output.rfind("Result: ")
     result_pmin = output[result_position:].split('Result: ')[1].split(' (')[0]
     result_pmax = 0.1 # to do
-    result_rmax = 0.1 # to do"""
+    result_rmax = 0.1 # to do
+    """
 
     props_file = f"p_master_dtmc.props"
     result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
@@ -80,9 +82,16 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
                             shell = True)
     output = result.stdout
     # print(f"\n\n This is teh outuput \n {str(output)}\n output ends \n\n")
+    res_expr = re.compile("Result: ([\d.]+)")
+    res_output = res_expr.findall(output)
+    result_pxi, result_rxi = res_output
+
+    """
     result_position = output.rfind("Result: ")
     result_pxi = output[result_position:].split('Result: ')[1].split(' (')[0]
     result_rxi = 0.1 # todo
+    """
+    
     ################
     ## End optimized
     ################
