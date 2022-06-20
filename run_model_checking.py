@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 import subprocess, copy, yaml
 from tqdm import tqdm
-# prism_executable = "../../prism-4.7-linux64/bin/prism"
 from matplotlib import pyplot as plt
 import random,json
+import re
 
 
 def sigma_for_bob(bob):
@@ -58,10 +58,13 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
                             check=True)
     output = result.stdout
     # print(output)
-    result_position = output.rfind("Result: ")
+    res_expr = re.compile("Result: ([\d.]+)")
+    results = res_expr.findall(output)
+    result_pmin, result_pmax, result_rmax = results
+    """result_position = output.rfind("Result: ")
     result_pmin = output[result_position:].split('Result: ')[1].split(' (')[0]
     result_pmax = 0.1 # to do
-    result_rmax = 0.1 # to do
+    result_rmax = 0.1 # to do"""
 
     props_file = f"{props_folder}/p_master_dtmc.props"
     result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
@@ -70,9 +73,12 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
                             check=True)
     output = result.stdout
     # print(output)
-    result_position = output.rfind("Result: ")
+    res_expr = re.compile("Result: ([\d.]+)")
+    results = res_expr.findall(output)
+    result_pxi, result_rxi = results
+    """result_position = output.rfind("Result: ")
     result_pxi = output[result_position:].split('Result: ')[1].split(' (')[0]
-    result_rxi = 0.1 # todo
+    result_rxi = 0.1 # todo """
     ################
     ## End optimized
     ################
@@ -185,7 +191,6 @@ def main():
             auxdf = check_one_trace(traces[i],strat)
             auxdict = {'trace' : i, 'strat' : strat, 'rhoP' : auxdf.Pxi.sum()/auxdf.Pmax.sum(),
                        'rhoR' : auxdf.Rxi.sum()/auxdf.Rmax.sum()}
-            # df = df.append(auxdict, ignore_index=True)
             new_row = pd.DataFrame.from_dict([auxdict])
             df = pd.concat([df,new_row], axis=0, join='outer', ignore_index=True)
 
