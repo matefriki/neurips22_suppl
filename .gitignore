@@ -1,6 +1,7 @@
 # Specific files
 aux_mdp.prism
 aux_dtmc.prism
+config.yml
 
 
 # Byte-compiled / optimized / DLL files

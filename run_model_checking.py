@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
-import subprocess, copy
+import subprocess, copy, yaml
 from tqdm import tqdm
-prism_executable = "../../prism-4.7-linux64/bin/prism"
+# prism_executable = "../../prism-4.7-linux64/bin/prism"
 from matplotlib import pyplot as plt
 import random,json
 
@@ -166,6 +166,11 @@ def probability_of_trace(trace):
 
 
 def main():
+    global prism_executable
+    with open("config.yml", "r") as yamlfile:
+        data = yaml.load(yamlfile, Loader=yaml.FullLoader)
+    prism_executable = data["prism_executable"]
+
     with open('data/strategies.json', 'r') as fp:
         strats = json.load(fp)
     with open('data/traces.json', 'r') as fp:
