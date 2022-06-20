@@ -9,7 +9,14 @@ Figure 3 (right).
 The tool for doing model checking operations that was used is
 [PRISM](http://www.prismmodelchecker.org/download.php)
 model checker.
-To run the code, `prism` has to be installed in the directory specified in line 5 of `run_model_checking.py`.
+
+To run the code, create a `config.yml` file,
+specifying the directory where your `prism` executable is.
+An example config file is:
+
+```
+prism_executable : "../../prism-4.7-linux64/bin/prism"
+```
 
 The tool requires python installed in the system.
 It has been tested with python 3.8.5.
@@ -37,10 +44,14 @@ with Ubuntu 20.04, Intel Core i5-10210U CPU, 16GB of RAM.
 
 ### Usage
 
-To run the whole pipeline, in a shell:
+To run the whole pipeline, for Linux or macOS, in a shell:
 
 ```
 bash run.sh
+```
+If you are using windows
+```
+./run.bat
 ```
 
 To produce the raw data (risks and benefits for every trace and strategy):

@@ -5,6 +5,7 @@ from tqdm import tqdm
 from matplotlib import pyplot as plt
 import random,json
 import re
+from sys import platform
 
 
 def sigma_for_bob(bob):
@@ -48,9 +49,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
         fp.write(to_check_mdp)
     with open(prism_file_dtmc, 'w') as fp:
         fp.write(to_check_dtmc)
-    ################
-    ## Begin optimized
-    ################
+
     props_file = f"{props_folder}/p_master_mdp.props"
     result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
                             stdout=subprocess.PIPE,  # capture output
@@ -61,10 +60,6 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
     res_expr = re.compile("Result: ([\d.]+)")
     results = res_expr.findall(output)
     result_pmin, result_pmax, result_rmax = results
-    """result_position = output.rfind("Result: ")
-    result_pmin = output[result_position:].split('Result: ')[1].split(' (')[0]
-    result_pmax = 0.1 # to do
-    result_rmax = 0.1 # to do"""
 
     props_file = f"{props_folder}/p_master_dtmc.props"
     result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
@@ -76,65 +71,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
     res_expr = re.compile("Result: ([\d.]+)")
     results = res_expr.findall(output)
     result_pxi, result_rxi = results
-    """result_position = output.rfind("Result: ")
-    result_pxi = output[result_position:].split('Result: ')[1].split(' (')[0]
-    result_rxi = 0.1 # todo """
-    ################
-    ## End optimized
-    ################
-#     props_file = f"{props_folder}/pmin.props"
-#     result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
-#                             stdout=subprocess.PIPE,  # capture output
-#                             encoding="utf-8",
-#                             check=True)
-#     output = result.stdout
-#     # print(output)
-#     result_position = output.rfind("Result: ")
-#     result_pmin = output[result_position:].split('Result: ')[1].split(' (')[0]
-#
-#     props_file = f"{props_folder}/pmax.props"
-#     result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
-#                             stdout=subprocess.PIPE,  # capture output
-#                             encoding="utf-8",
-#                             check=True)
-#     output = result.stdout
-# #     print(output)
-#     result_position = output.rfind("Result: ")
-# #     print(output[result_position:])
-#     result_pmax = output[result_position:].split('Result: ')[1].split(' (')[0]
-#
-#     props_file = f"{props_folder}/rmax.props"
-#     result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
-#                             stdout=subprocess.PIPE,  # capture output
-#                             encoding="utf-8",
-#                             check=True)
-#     output = result.stdout
-#     # print(output)
-#     result_position = output.rfind("Result: ")
-#     result_rmax = output[result_position:].split('Result: ')[1].split(' (')[0]
-#
-#     props_file = f"{props_folder}/p.props"
-#     result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
-#                             stdout=subprocess.PIPE,  # capture output
-#                             encoding="utf-8",
-#                             check=True)
-#     output = result.stdout
-#     # print(output)
-#     result_position = output.rfind("Result: ")
-#     result_pxi = output[result_position:].split('Result: ')[1].split(' (')[0]
-#
-#     props_file = f"{props_folder}/reward.props"
-#     result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
-#                             stdout=subprocess.PIPE,  # capture output
-#                             encoding="utf-8",
-#                             check=True)
-#     output = result.stdout
-#     # print(output)
-#     result_position = output.rfind("Result: ")
-#     result_rxi = output[result_position:].split('Result: ')[1].split(' (')[0]
-    ################
-    ## End old
-    ################
+
 
     return float(result_pmin), float(result_pmax), float(result_rmax), float(result_pxi), float(result_rxi)
 
@@ -197,4 +134,6 @@ def main():
     df.to_csv('data/raw_data.csv')
 
 if __name__ == "__main__":
+    print(platform)
+    print('\n\n\n')
     main()
