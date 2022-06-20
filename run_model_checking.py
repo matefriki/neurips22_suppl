@@ -2,9 +2,10 @@ import pandas as pd
 import numpy as np
 import subprocess, copy
 from tqdm import tqdm
-prism_executable = "../../prism-4.7-linux64/bin/prism"
+prism_executable = "prism/prism/bin/prism"
 from matplotlib import pyplot as plt
 import random,json
+import re
 
 
 def sigma_for_bob(bob):
@@ -57,11 +58,17 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
                             encoding="utf-8",
                             check=True)
     output = result.stdout
-    # print(output)
+    res_expr = re.compile("Result: ([\d.]+)")
+    #print(output)
+    results = res_expr.findall(output)
+    result_pmin, result_pmax, result_rmax = results
+
+    """
     result_position = output.rfind("Result: ")
     result_pmin = output[result_position:].split('Result: ')[1].split(' (')[0]
     result_pmax = 0.1 # to do
     result_rmax = 0.1 # to do
+    """
 
     props_file = f"{props_folder}/p_master_dtmc.props"
     result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
@@ -70,9 +77,14 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
                             check=True)
     output = result.stdout
     # print(output)
+    results = res_expr.findall(output)
+    result_pxi, result_rxi = results
+
+    """
     result_position = output.rfind("Result: ")
     result_pxi = output[result_position:].split('Result: ')[1].split(' (')[0]
     result_rxi = 0.1 # todo
+    """
     ################
     ## End optimized
     ################
