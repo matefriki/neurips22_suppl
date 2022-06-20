@@ -43,7 +43,8 @@ def make_plot(plot_df):
             for s in sizes:
                 new_row = df[(df.dist == d) & (df.prob == s)].tail(1)
                 if new_row.shape[0] == 1:
-                    df_list[i] = df_list[i].append(new_row)
+                    # df_list[i] = df_list[i].append(new_row)
+                    df_list[i] = pd.concat([df_list[i], new_row], axis=0, join='outer')
                     idx = new_row.index[0]
                     df = df.drop(idx)
 
@@ -91,8 +92,9 @@ def compute_inefficiencies(df):
                 benf_ineff = max(benf_ineff, dof.loc[j,'rhoR']-rhoRxi)
             if dof.loc[j,'rhoR'] >= rhoRxi:
                 risk_ineff = max(risk_ineff, rhoPxi - dof.loc[j,'rhoP'])
-        plot_df = plot_df.append({'trace':i, 'risk_ineff': risk_ineff, 'ben_ineff':benf_ineff,
-                                  'prob':trace_probs[i], 'dist':traces_distances[i]}, ignore_index=True)
+        new_row = pd.DataFrame.from_dict({'index':0,'trace':[i], 'risk_ineff': [risk_ineff], 'ben_ineff':[benf_ineff],
+                                  'prob':[trace_probs[i]], 'dist':[traces_distances[i]]})
+        plot_df = pd.concat([plot_df,new_row], axis=0, join='outer', ignore_index=True)
     return plot_df
 
 
