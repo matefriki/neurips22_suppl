@@ -60,7 +60,7 @@ def make_plot(plot_df):
         dists = df_list[i]['dist']
         risks = df_list[i]['risk_ineff']
         benfs = df_list[i]['ben_ineff']
-        sizes = 5000*df_list[i]['prob']
+        sizes = 5000*df_list[i]['prob'].astype(float)
         ax.scatter(dists, risks, s=sizes,color=color_risk, vmin=0, marker = 'o', vmax=100, alpha=alphas[i])
         ax.scatter(dists, benfs, s=sizes,color=color_benf, vmin=0, marker = 's', vmax=100, alpha=alphas[i])
     ax.set(xlim=(-1, 7), xticks=np.arange(0, 7),

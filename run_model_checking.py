@@ -140,7 +140,9 @@ def check_one_trace(trace, openDoor):
         auxdict = {'Pmin':aux[0], 'Pmax' : aux[1], 'Rmin': 0, 'Rmax':aux[2], 'Pxi':aux[3], 'Rxi':aux[4]}
         auxdict['rhoP']=(auxdict['Pxi']-auxdict['Pmin'])/(auxdict['Pmax']-auxdict['Pmin'])
         auxdict['rhoR']=(auxdict['Rxi']-auxdict['Rmin'])/(auxdict['Rmax']-auxdict['Rmin'])
-        df = df.append(auxdict,ignore_index=True)
+        # df = df.append(auxdict,ignore_index=True)
+        new_row = pd.DataFrame.from_dict([auxdict])
+        df = pd.concat([df,new_row], axis=0, join='outer', ignore_index=True)
 #     print(f'Overall risk: {df.Pxi.sum()/df.Pmax.sum()}')
 #     print(f'Overall benefit: {df.Rxi.sum()/df.Rmax.sum()}\n')
     return df
@@ -178,7 +180,9 @@ def main():
             auxdf = check_one_trace(traces[i],strat)
             auxdict = {'trace' : i, 'strat' : strat, 'rhoP' : auxdf.Pxi.sum()/auxdf.Pmax.sum(),
                        'rhoR' : auxdf.Rxi.sum()/auxdf.Rmax.sum()}
-            df = df.append(auxdict, ignore_index=True)
+            # df = df.append(auxdict, ignore_index=True)
+            new_row = pd.DataFrame.from_dict([auxdict])
+            df = pd.concat([df,new_row], axis=0, join='outer', ignore_index=True)
 
     df.to_csv('data/raw_data.csv')
 
