@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import subprocess, copy
 from tqdm import tqdm
-prism_executable = "../../prism-4.7-linux64/bin/prism"
+prism_executable = "prism"
 from matplotlib import pyplot as plt
 import random,json
 
@@ -22,9 +22,9 @@ def sigma_for_bob(bob):
 def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
     props_folder = "properties_files"
     model_folder = "prism_models"
-    with open(f"{model_folder}/casestudy_mdp.prism", 'r') as fp:
+    with open(f"{model_folder}\\casestudy_mdp.prism", 'r') as fp:
         base_mdp = fp.read().split('\n')[7:]
-    with open(f"{model_folder}/casestudy_dtmc.prism", 'r') as fp:
+    with open(f"{model_folder}\\casestudy_dtmc.prism", 'r') as fp:
         base_dtmc = fp.read().split('\n')[10:]
 
     init_values = ""
@@ -41,8 +41,8 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
     for i in base_dtmc:
         to_check_dtmc += f"{i}\n"
 
-    prism_file_mdp = "aux_mdp.prism"
-    prism_file_dtmc = "aux_dtmc.prism"
+    prism_file_mdp = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin\\aux_mdp.prism"
+    prism_file_dtmc = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin\\aux_dtmc.prism"
 
     with open(prism_file_mdp, 'w') as fp:
         fp.write(to_check_mdp)
@@ -51,32 +51,37 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
     ################
     ## Begin optimized
     ################
-    props_file = f"{props_folder}/p_master_mdp.props"
-    result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
+    props_file = f"p_master_mdp.props"
+    result = subprocess.Popen(args=[prism_executable, str(prism_file_mdp), str(props_file)],
                             stdout=subprocess.PIPE,  # capture output
-                            encoding="utf-8",
-                            check=True)
-    output = result.stdout
-    # print(output)
+                            encoding="utf-8", stderr=subprocess.STDOUT,
+                            close_fds=True,
+                            cwd = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin",
+                            shell = True)
+    output = result.stdout.read()
+    # print(f"\n\n This is teh outuput \n {output}\n output ends \n\n")
     result_position = output.rfind("Result: ")
     result_pmin = output[result_position:].split('Result: ')[1].split(' (')[0]
     result_pmax = 0.1 # to do
     result_rmax = 0.1 # to do
 
-    props_file = f"{props_folder}/p_master_dtmc.props"
+    props_file = f"p_master_dtmc.props"
     result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
                             stdout=subprocess.PIPE,  # capture output
                             encoding="utf-8",
-                            check=True)
+                            stderr=subprocess.STDOUT,
+                            close_fds=True,
+                            cwd = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin",
+                            shell = True)
     output = result.stdout
-    # print(output)
+    # print(f"\n\n This is teh outuput \n {str(output)}\n output ends \n\n")
     result_position = output.rfind("Result: ")
     result_pxi = output[result_position:].split('Result: ')[1].split(' (')[0]
     result_rxi = 0.1 # todo
     ################
     ## End optimized
     ################
-#     props_file = f"{props_folder}/pmin.props"
+#     props_file = f"{props_folder}\pmin.props"
 #     result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
 #                             stdout=subprocess.PIPE,  # capture output
 #                             encoding="utf-8",
@@ -86,7 +91,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
 #     result_position = output.rfind("Result: ")
 #     result_pmin = output[result_position:].split('Result: ')[1].split(' (')[0]
 #
-#     props_file = f"{props_folder}/pmax.props"
+#     props_file = f"{props_folder}\pmax.props"
 #     result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
 #                             stdout=subprocess.PIPE,  # capture output
 #                             encoding="utf-8",
@@ -97,7 +102,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
 # #     print(output[result_position:])
 #     result_pmax = output[result_position:].split('Result: ')[1].split(' (')[0]
 #
-#     props_file = f"{props_folder}/rmax.props"
+#     props_file = f"{props_folder}\rmax.props"
 #     result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
 #                             stdout=subprocess.PIPE,  # capture output
 #                             encoding="utf-8",
@@ -107,7 +112,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
 #     result_position = output.rfind("Result: ")
 #     result_rmax = output[result_position:].split('Result: ')[1].split(' (')[0]
 #
-#     props_file = f"{props_folder}/p.props"
+#     props_file = f"{props_folder}\p.props"
 #     result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
 #                             stdout=subprocess.PIPE,  # capture output
 #                             encoding="utf-8",
@@ -117,7 +122,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
 #     result_position = output.rfind("Result: ")
 #     result_pxi = output[result_position:].split('Result: ')[1].split(' (')[0]
 #
-#     props_file = f"{props_folder}/reward.props"
+#     props_file = f"{props_folder}\reward.props"
 #     result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
 #                             stdout=subprocess.PIPE,  # capture output
 #                             encoding="utf-8",
