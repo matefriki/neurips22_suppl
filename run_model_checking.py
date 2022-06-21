@@ -21,6 +21,8 @@ def sigma_for_bob(bob):
     return
 
 def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
+    working_dir = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin"
+
     props_folder = "properties_files"
     model_folder = "prism_models"
     with open(f"{model_folder}\\casestudy_mdp.prism", 'r') as fp:
@@ -42,8 +44,8 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
     for i in base_dtmc:
         to_check_dtmc += f"{i}\n"
 
-    prism_file_mdp = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin\\aux_mdp.prism"
-    prism_file_dtmc = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin\\aux_dtmc.prism"
+    prism_file_mdp = f"{working_dir}\\aux_mdp.prism"
+    prism_file_dtmc = f"{working_dir}\\aux_dtmc.prism"
 
     with open(prism_file_mdp, 'w') as fp:
         fp.write(to_check_mdp)
@@ -57,7 +59,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
                             stdout=subprocess.PIPE,  # capture output
                             encoding="utf-8", stderr=subprocess.STDOUT,
                             close_fds=True,
-                            cwd = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin",
+                            cwd = f"{working_dir}",
                             shell = True)
     output = result.stdout.read()
     # print(f"\n\n This is teh outuput \n {output}\n output ends \n\n")
@@ -78,7 +80,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
                             encoding="utf-8",
                             stderr=subprocess.STDOUT,
                             close_fds=True,
-                            cwd = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin",
+                            cwd = f"{working_dir}",
                             shell = True)
     output = result.stdout
     # print(f"\n\n This is teh outuput \n {str(output)}\n output ends \n\n")
