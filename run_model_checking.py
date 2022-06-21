@@ -6,6 +6,7 @@ prism_executable = "prism"
 from matplotlib import pyplot as plt
 import random,json
 import re
+import os
 
 
 def sigma_for_bob(bob):
@@ -21,7 +22,7 @@ def sigma_for_bob(bob):
     return
 
 def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
-    working_dir = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin"
+    working_dir = os.path.abspath("prism-4.7\\bin")
 
     props_folder = "properties_files"
     model_folder = "prism_models"
