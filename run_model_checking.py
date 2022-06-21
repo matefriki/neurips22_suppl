@@ -50,23 +50,43 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
     with open(prism_file_dtmc, 'w') as fp:
         fp.write(to_check_dtmc)
 
-    props_file = f"{props_folder}/p_master_mdp.props"
-    result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
+    if platform == "win64":
+        props_file = "p_master_mdp.props"
+        result = subprocess.Popen(args=[prism_executable, str(prism_file_mdp), str(props_file)],
+                      stdout=subprocess.PIPE,  # capture output
+                      encoding="utf-8", stderr=subprocess.STDOUT,
+                      close_fds=True,
+                      cwd="C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin",
+                      shell=True)
+        output = result.stdout.read()
+    else:
+
+        props_file = f"{props_folder}/p_master_mdp.props"
+        result = subprocess.run(args=[prism_executable, str(prism_file_mdp), str(props_file)],
                             stdout=subprocess.PIPE,  # capture output
                             encoding="utf-8",
                             check=True)
-    output = result.stdout
+        output = result.stdout
     # print(output)
     res_expr = re.compile("Result: ([\d.]+)")
     results = res_expr.findall(output)
     result_pmin, result_pmax, result_rmax = results
-
-    props_file = f"{props_folder}/p_master_dtmc.props"
-    result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
-                            stdout=subprocess.PIPE,  # capture output
-                            encoding="utf-8",
-                            check=True)
-    output = result.stdout
+    if platform == "win64":
+        props_file = "p_master_dtmc.props"
+        result = subprocess.Popen(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
+                      stdout=subprocess.PIPE,  # capture output
+                      encoding="utf-8", stderr=subprocess.STDOUT,
+                      close_fds=True,
+                      cwd="C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin",
+                      shell=True)
+        output = result.stdout.read()
+    else:
+        props_file = f"{props_folder}/p_master_dtmc.props"
+        result = subprocess.run(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
+                                stdout=subprocess.PIPE,  # capture output
+                                encoding="utf-8",
+                                check=True)
+        output = result.stdout
     # print(output)
     res_expr = re.compile("Result: ([\d.]+)")
     results = res_expr.findall(output)
@@ -134,6 +154,4 @@ def main():
     df.to_csv('data/raw_data.csv')
 
 if __name__ == "__main__":
-    print(platform)
-    print('\n\n\n')
     main()

@@ -18,6 +18,9 @@ An example config file is:
 prism_executable : "../../prism-4.7-linux64/bin/prism"
 ```
 
+To use with Windows, copy the files `properties_files/p_master_mdp.props` and
+`properties_files/p_master_dtmc.props`
+to the directory where the prism executable is. 
 The tool requires python installed in the system.
 It has been tested with python 3.8.5.
 Other versions should also work.
