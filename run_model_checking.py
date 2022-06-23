@@ -42,15 +42,19 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
     for i in base_dtmc:
         to_check_dtmc += f"{i}\n"
 
-    prism_file_mdp = "aux_mdp.prism"
-    prism_file_dtmc = "aux_dtmc.prism"
+    if platform == "win32":
+        prism_file_mdp = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin\\aux_mdp.prism"
+        prism_file_dtmc = "C:\\Users\\katri\\neurips22_suppl\\prism-4.7\\bin\\aux_dtmc.prism"
+    else:
+        prism_file_mdp = "aux_mdp.prism"
+        prism_file_dtmc = "aux_dtmc.prism"
 
     with open(prism_file_mdp, 'w') as fp:
         fp.write(to_check_mdp)
     with open(prism_file_dtmc, 'w') as fp:
         fp.write(to_check_dtmc)
-
-    if platform == "win64":
+    print(f"the platform is {platform}.")
+    if platform == "win32":
         props_file = "p_master_mdp.props"
         result = subprocess.Popen(args=[prism_executable, str(prism_file_mdp), str(props_file)],
                       stdout=subprocess.PIPE,  # capture output
@@ -71,7 +75,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
     res_expr = re.compile("Result: ([\d.]+)")
     results = res_expr.findall(output)
     result_pmin, result_pmax, result_rmax = results
-    if platform == "win64":
+    if platform == "win32":
         props_file = "p_master_dtmc.props"
         result = subprocess.Popen(args=[prism_executable, str(prism_file_dtmc), str(props_file)],
                       stdout=subprocess.PIPE,  # capture output
