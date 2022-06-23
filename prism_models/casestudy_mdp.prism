@@ -2,7 +2,7 @@ mdp
 // Markov Decision Process. Used for computing \rho_{\phi/R,min/max}
 
 const int initBob = 0;
-const int initSigma = 0;
+//const int initSigma = 0;
 const int initGuard = 5;
 const int initTime = 50;
 
@@ -17,6 +17,7 @@ formula guard_closer_to_Alice = d_Alice < d_Bob;
 formula wait = (CS=0)&(GD=0)&(AA=0)&(BA=0); // door has not been open
 formula pA = 0.5/(1+d_Alice); // probability to see Alice if guard looks
 formula pB = (sigma/100)/(1+d_Bob); // probability to see Bob if guard looks
+formula sigma = 17.5*b*b - 112.5*b + 185;
 
 
 
@@ -43,12 +44,11 @@ endmodule
 
 module Bob
 	b : [0..3] init initBob;
-	sigma : [0..100] init initSigma;
 
-	[] (turn=2)&(b=0) -> 0.9 : (b'=0)&(sigma'=0)&(turn'=3) + 0.1 : (b'= 1)&(sigma'=90)&(turn'=3);
-	[] (turn=2)&(b=1) -> 0.9 : (b'=2)&(sigma'=30)&(turn'=3) + 0.1 : (b'= 1)&(sigma'=90)&(turn'=3);
-	[] (turn=2)&(b=2) -> 0.9 : (b'=3)&(sigma'=5)&(turn'=3) + 0.1 : (b'= 2)&(sigma'=30)&(turn'=3);
-	[] (turn=2)&(b=3) -> 0.9 : (b'=3)&(turn'=3)&(sigma'=5) + 0.1 : (b'= 0)&(sigma'=0)&(turn'=3);
+	[] (turn=2)&(b=0) -> 0.9 : (b'=0)&(turn'=3) + 0.1 : (b'= 1)&(turn'=3);
+	[] (turn=2)&(b=1) -> 0.9 : (b'=2)&(turn'=3) + 0.1 : (b'= 1)&(turn'=3);
+	[] (turn=2)&(b=2) -> 0.9 : (b'=3)&(turn'=3) + 0.1 : (b'= 2)&(turn'=3);
+	[] (turn=2)&(b=3) -> 0.9 : (b'=3)&(turn'=3) + 0.1 : (b'= 0)&(turn'=3);
 endmodule
 
 // Since the prism language doesn't have modulo operators, we have to make the special cases of the guard
