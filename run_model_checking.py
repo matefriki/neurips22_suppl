@@ -53,7 +53,7 @@ def check_one_state(initBob, initSigma, initGuard, initTime, openDoor):
         fp.write(to_check_mdp)
     with open(prism_file_dtmc, 'w') as fp:
         fp.write(to_check_dtmc)
-    print(f"the platform is {platform}.")
+
     if platform == "win32":
         props_file = "p_master_mdp.props"
         result = subprocess.Popen(args=[prism_executable, str(prism_file_mdp), str(props_file)],
