@@ -37,35 +37,36 @@
                 <div class="button unselectable random">Randomize</div>
             </div>
             <div class="pane block">
+                <div class="title">Block</div>
                 <div class="property">
-                </div><span class="label">X1: </span>
-                <div class="input editable" data-obj="top_corner" data-prop="x" contenteditable="true"></div>
+                    <span class="label">X1: </span>
+                    <div class="input editable" data-obj="top_corner" data-prop="x" contenteditable="true">69</div>
+                </div>
+                <div class="property">
+                    <span class="label">Y1: </span>
+                    <div class="input editable" data-obj="top_corner" data-prop="y" contenteditable="true">11</div>
+                </div>
+                <div class="property">
+                    <span class="label">X2: </span>
+                    <div class="input editable" data-obj="bottom_corner" data-prop="x" contenteditable="true">76</div>
+                </div>
+                <div class="property">
+                    <span class="label">Y2: </span>
+                    <div class="input editable" data-obj="bottom_corner" data-prop="y" contenteditable="true">13</div>
+                </div>
             </div>
-            <div class="property">
-                <span class="label">Y1: </span>
-                <div class="input editable" data-obj="top_corner" data-prop="y" contenteditable="true"></div>
+            <div class="generate">
+                <div class="label">Generate</div>
+                <div class="input" contenteditable="true">100</div>
+                <div class="label">steps</div>
+                <div class="big_button unselectable">go!</div>
             </div>
-            <div class="property">
-                <span class="label">X2: </span>
-                <div class="input editable" data-obj="bottom_corner" data-prop="x" contenteditable="true"></div>
-            </div>
-            <div class="property">
-                <span class="label">Y2: </span>
-                <div class="input editable" data-obj="bottom_corner" data-prop="y" contenteditable="true"></div>
+            <div class="loading">
+                <div class="progress">
+                    <div class="bar"></div>
+                </div>
             </div>
         </div>
-        <div class="generate">
-            <div class="label">Generate</div>
-            <div class="input" contenteditable="true">100</div>
-            <div class="label">steps</div>
-            <div class="big_button unselectable">go!</div>
-        </div>
-        <div class="loading">
-            <div class="progress">
-                <div class="bar"></div>
-            </div>
-        </div>
-    </div>
     </div>
     <canvas class="scene"></canvas>
     <div class="bottom"></div>

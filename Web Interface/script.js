@@ -3,6 +3,7 @@ let app;
 
 let car_input_x, car_input_y;
 let person_input_x, person_input_y;
+let top_input_x, top_input_y, bottom_input_x, bottom_input_y;
 
 let ranges = { x: [1, 100], y: [1, 16] };
 
@@ -15,6 +16,12 @@ window.addEventListener('load', () => {
     let person_inputs = document.body.querySelectorAll('.pane.person .input');
     person_input_x = person_inputs[0];
     person_input_y = person_inputs[1];
+
+    let handle_inputs = document.body.querySelectorAll('.pane.block .input');
+    top_input_x = handle_inputs[0];
+    top_input_y = handle_inputs[1];
+    bottom_input_x = handle_inputs[2];
+    bottom_input_y = handle_inputs[3];
 
     let canvas = document.querySelector('.scene'); // from the html
     canvas.addEventListener('click', forceBlur);
@@ -54,11 +61,49 @@ window.addEventListener('load', () => {
         .on('pointerupoutside', onDragEnd)
         .on('pointermove', carDragMove);
 
+    let bottom_corner = PIXI.Sprite.from('handle.png');
+    bottom_corner.name = "bottom_corner";
+    bottom_corner.interactive = true;
+    bottom_corner.buttonMode = true;
+    bottom_corner.width = 2 * unit;
+    bottom_corner.height = 2 * unit;
+    bottom_corner.anchor.set(0.5);
+
+    bottom_corner
+        .on('pointerdown', onDragStart)
+        .on('pointerup', onDragEnd)
+        .on('pointerupoutside', onDragEnd)
+        .on('pointermove', handleDragMove);
+
+    let top_corner = PIXI.Sprite.from('handle.png');
+    top_corner.name = "top_corner";
+    top_corner.interactive = true;
+    top_corner.buttonMode = true;
+    top_corner.width = 2 * unit;
+    top_corner.height = 2 * unit;
+    top_corner.anchor.set(0.5);
+
+    top_corner
+        .on('pointerdown', onDragStart)
+        .on('pointerup', onDragEnd)
+        .on('pointerupoutside', onDragEnd)
+        .on('pointermove', handleDragMove);
+
+    let block = new PIXI.Graphics();
+    block.beginFill(0x03adfc, .5);
+    block.lineStyle(0, 0xFF0000);
+    block.drawRect(0, 0, 300, 200);
+    block.name = "block";
+
     app.stage.addChild(background); // add all the sprites to the canvas
     app.stage.addChild(person);
     app.stage.addChild(car);
+    app.stage.addChild(block);
+    app.stage.addChild(bottom_corner);
+    app.stage.addChild(top_corner);
 
     setupInputs();
+    adjustBlock();
 
     let generateBtn = document.querySelector('.generate .big_button');
     generateBtn.addEventListener('click', () => {
@@ -70,12 +115,17 @@ window.addEventListener('load', () => {
         let randBtns = document.querySelectorAll('.random');
         randBtns.forEach((rand) => rand.classList.add("hidden"));
 
+        
+
         document.querySelectorAll('.controls .input').forEach((inp) => {
             inp.setAttribute("contenteditable", "false");
             inp.classList.remove("editable");
         });
 
-        app.stage.children.forEach((child) => child.interactive = false);
+        app.stage.children.forEach((child) => {
+            child.interactive = false;
+            if (child.name.search("corner") > -1) child.visible = false;
+        });
 
         let bar = loadingPane.querySelector('.bar'); // bar inside of progress bar
         bar.style.width = "0px";
@@ -112,6 +162,18 @@ function forceBlur() { // to be able to click away from textbox
 
 function isDigit(char) {
     return char.length == 1 && (char >= '0' && char <= '9');
+}
+
+function adjustBlock() {
+    let top = app.stage.getChildByName("top_corner");
+    let bottom = app.stage.getChildByName("bottom_corner");
+    let block = app.stage.getChildByName("block")
+    block.x = top.x;
+    block.y = top.y;
+    let diff_x = bottom.x - top.x;
+    let diff_y = bottom.y - top.y;
+    block.width = diff_x;
+    block.height = diff_y;
 }
 
 function performChanges(inp) {  // applying the user input number to car/ped x and y, detection happened below:
@@ -182,3 +244,20 @@ function personDragMove() {
     }
 }
 
+function handleDragMove() {
+    if (this.dragging) {
+        const newPosition = this.data.getLocalPosition(this.parent);
+        let grid_x = clamp(Math.round(newPosition.x / unit), 0, 100);
+        let grid_y = clamp(Math.round(newPosition.y / unit), 0, 15);
+        this.x = grid_x * unit;
+        this.y = grid_y * unit;
+        if(this.name == "top_corner") {
+            top_input_x.innerHTML = grid_x;
+            top_input_y.innerHTML = grid_y;
+        } else {
+            bottom_input_x.innerHTML = grid_x;
+            bottom_input_y.innerHTML = grid_y;
+        }
+    }
+    adjustBlock();
+}
