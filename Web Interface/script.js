@@ -103,7 +103,7 @@ function clamp(n, lower, upper) { // keeps person on the screen so their x and y
     return Math.min(Math.max(lower, n), upper);
 }
 
-function forceBlur() {
+function forceBlur() { // to be able to click away from textbox
     let temp = document.createElement("input");
     document.body.appendChild(temp);
     temp.focus();
@@ -144,15 +144,18 @@ function setupInputs() { // setup input events, makes sure user can only type in
     });
 }
 
-function onDragStart(event) {
+// runs once at begining
+function onDragStart(event) { // saving a reference to the event (x,y of car being dragged gets saved back into the sprite/pane)
     this.dragging = true;
-    this.data = event.data;
+    this.data = event.data; //binds the events to that object, the car or the person -- helps for separating moves between car and person for touch screen/moving both object at once
 }
 
+// runs once at end
 function onDragEnd() {
     this.dragging = false;
 }
 
+// runs multiple times, continually updates position with cursor
 function carDragMove() {
     if (this.dragging) {
         const newPosition = this.data.getLocalPosition(this.parent);
