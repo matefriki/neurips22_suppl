@@ -37,6 +37,7 @@ formula dist = max(ped_x-car_x, car_x - ped_x) + max(ped_y - car_y, car_y - ped_
 formula safe_dist = dist > 15;
 formula is_on_sidewalk = (ped_y < sidewalk_height) | (ped_y > sidewalk_height + crosswalk_height);
 formula wait_prob = (crosswalk_pos - ped_x) / 10;
+formula crash_over = ((ped_x >= car_x) & (ped_x <= ped_x + car_width)) & ((ped_y >= car_y) & (ped_y <= car_y + car_height));
 
 // for calculating if pedestrian is blocked from car view
 formula x1 = car_x + car_width;
@@ -53,6 +54,7 @@ module Car
 	car_x : [0..street_length] init 0;
 	car_v : [0..max_speed] init 0;
 	visibility : [0..1] init 1;
+	crashed : [0..1] init 0;
 
 	[] (turn = 0) & safe_dist -> // Accelerate
 		// change_prob/neutral/... etc. based on type of driver
@@ -70,6 +72,7 @@ module Car
 	[] (turn = 1)& blocked_view -> 
 		(visibility' = 1)&(turn' = 2);
 
+	[] (turn = 1)&(crash_over) -> (crashed' = 1);
 	
 endmodule
 
@@ -95,5 +98,8 @@ module Pedestrian
 	[] (!is_on_sidewalk)&(!safe_dist)&(turn = 2) -> // pedestrian choices from the crosswalk
 		0.9: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
 		0.1: (ped_y' = max(ped_y - 1, 0))&(turn' = 0); // Down
+	
+	// uncomment this to end path simulation
+//	[] (turn = 2)&(crash_over) -> true;
 endmodule
 
