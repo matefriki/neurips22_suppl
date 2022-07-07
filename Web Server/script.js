@@ -230,7 +230,9 @@ function adjustBlock() {
 // Applies the value of the given text input to the Pixi scene
 function performChanges(inp) {
     // Gets reference to associated Pixi object defined by the input's data attribute data-obj="pixi_object" (eg. "person", "car")
-    let obj = app.stage.getChildByName(inp.dataset.obj);
+    let obj_name = inp.dataset.obj;
+    if(!obj_name) return;
+    let obj = app.stage.getChildByName(obj_name);
     // Attempt to parse the input's value as an integer
     let value = parseInt(inp.innerHTML) * unit;
     if(isNaN(value)) value = unit;
@@ -243,9 +245,15 @@ function performChanges(inp) {
     obj[prop] = value;
 }
 
+// Clamps the value in an input to its specified range (given by data-range)
+function clampInput(inp) {
+    let range = getInputRange(inp);
+    inp.innerHTML = clamp(inp.innerText, range[0], range[1]);
+}
+
 // Setup the html text inputs by registering events, in order to restrict input
 function setupInputs() {
-    let inputs = document.querySelectorAll('.pane .input');
+    let inputs = document.querySelectorAll('.input');
     inputs.forEach((inp) => {
         // Apply default starting positions on page load
         performChanges(inp);
@@ -254,6 +262,8 @@ function setupInputs() {
             if (e.key == "Enter") {
                 // Deselect/unfocus text input
                 forceBlur();
+                // Clamp the input value to range
+                clampInput(inp);
                 // Disable typing of new line
                 e.preventDefault();
             } else if (!isDigit(e.key) && e.key.search("Arrow") == -1 && e.key != "Backspace") { // Disable input of invalid chars (not 0-9)
@@ -268,6 +278,7 @@ function setupInputs() {
         // Set textbox to default value on unfocus if blank, otherwise apply changes
         inp.addEventListener('focusout', (e) => { // If user clicks away from the input, empty textbox is set to one
             if (isNaN(parseInt(inp.innerText))) inp.innerHTML = "1";
+            clampInput(inp);
             performChanges(inp);
         });
     });
