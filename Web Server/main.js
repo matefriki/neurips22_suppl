@@ -9,6 +9,7 @@ const io = new Server(server);
 
 const fs = require('fs');
 const { spawn } = require('child_process');
+const e = require('express');
 
 function getPrismPath() {
   var path = process.cwd();
@@ -27,26 +28,45 @@ accessible_files.map((file_name) => {
   });
 });
 
+let queue = [];
+let running = false;
+
 io.on('connection', (socket) => {
   console.log('a user connected');
   socket.on('generate', (path_length, person_x, person_y, car_x, car_y, top_corner_x, top_corner_y, bottom_corner_x, bottom_corner_y) => {
-    const runner = spawn('python3', ['prism_runner.py'], {timeout: 5000});
-    runner.stdin.write(`${path_length} ${person_x} ${person_y} ${car_x} ${car_y} ${top_corner_x} ${top_corner_y} ${bottom_corner_x} ${bottom_corner_y}`);
-    runner.stdin.end();
+    queue.push((closed) => {
+      const runner = spawn('python3', ['prism_runner.py'], { timeout: 5000 });
+      runner.stdin.write(`${path_length} ${person_x} ${person_y} ${car_x} ${car_y} ${top_corner_x} ${top_corner_y} ${bottom_corner_x} ${bottom_corner_y}`);
+      runner.stdin.end();
 
-    // Must have buffer because chunk size from python is smaller than full path (over path_length of 100)
-    let buffer = "";
-    runner.stdout.on('data', (data) => {
+      // Must have buffer because chunk size from python is smaller than full path (over path_length of 100)
+      let buffer = "";
+      runner.stdout.on('data', (data) => {
         buffer += data.toString();
         console.log("data");
+      });
+
+      runner.on('close', () => {
+        socket.emit("path", buffer);
+        console.log('close');
+        closed();
+      });
     });
 
-    runner.on('close', () => {
-      socket.emit("path", buffer);
-      console.log('close');
-    });
+    handleQueue();
   });
 });
+
+function handleQueue() {
+  if(queue.length == 0 || running) return;
+  console.log(`Handling queue, length: ${queue.length}`);
+  running = true;
+  let currRequest = queue.shift();
+  currRequest(() => {
+    running = false;
+    handleQueue();
+  });
+}
 
 server.listen(8000, () => {
   console.log('listening on *:8000');
