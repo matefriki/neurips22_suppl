@@ -17,6 +17,7 @@ window.addEventListener('load', () => {
 
     // Create socket connection with server
     socket = io();
+    socket.on("path", animatePath);
 
     // Get references to the car's inputs from html
     let car_inputs = document.body.querySelectorAll('.pane.car .input');
@@ -139,9 +140,8 @@ window.addEventListener('load', () => {
     generateBtn.addEventListener('click', () => {
         // Hide the generate button/message, and show the loading pane
         let generatePane = document.querySelector('.generate');
-        let loadingPane = document.querySelector('.loading');
         generatePane.style.display = "none";
-        loadingPane.style.display = "flex";
+        setLoadingVisibility(true);
 
         // Deactivate the UI controls
         setControlsActive(false);
@@ -150,9 +150,8 @@ window.addEventListener('load', () => {
         sendGenerateMessage();
 
         // Play the progress bar loading animation
-        let bar = loadingPane.querySelector('.bar');
-        bar.style.width = "0px";
-        setTimeout(() => bar.style.width = "calc(100% - 8px)", 50);
+        setProgressScale(0.0);
+        setTimeout(setProgressScale.bind(this, 0.5, 1), 50);
     });
 
     // Setup random buttons
@@ -274,6 +273,24 @@ function setupInputs() {
     });
 }
 
+// Sets the progress bar fullness to the desired scale (from 0-1), with the given animation duration (in seconds)
+function setProgressScale(scale, seconds) {
+    let loadingPane = document.querySelector('.loading');
+    let bar = loadingPane.querySelector('.bar');
+    bar.style.transition = `width ${seconds}s ease-out`;
+    bar.style.width = `calc(${scale * 100}% - 8px)`;
+}
+
+// Makes the loading/progress bar pane either visible or fade away depending on the given boolean
+function setLoadingVisibility(visible) {
+    let loadingPane = document.querySelector('.loading');
+    if(visible) {
+        loadingPane.classList.remove("fully_hidden");
+        loadingPane.style.display = "flex";
+    }
+    else loadingPane.classList.add("fully_hidden");
+}
+
 // Enable or disable both html controls and draggable object in Pixi scene, depending on whether "active" is true or false
 function setControlsActive(active) {
     // Hide the randomize buttons with fade animation
@@ -303,6 +320,7 @@ function setControlsActive(active) {
 // path_length, person_x, person_y, car_x, car_y, top_corner_x, top_corner_y, bottom_corner_x, bottom_corner_y
 function sendGenerateMessage() {
     let path_length = document.querySelector('.generate .input');
+    console.log(path_length.innerText);
     socket.emit('generate', path_length.innerText, person_input_x.innerText, person_input_y.innerText, car_input_x.innerText, car_input_y.innerText, top_input_x.innerText, top_input_y.innerText, bottom_input_x.innerText, bottom_input_y.innerText);
 }
 
@@ -387,4 +405,33 @@ function cornerDragMove() {
     }
     // Rescale and position filled rect of block to reflect new handle positions
     adjustBlock();
+}
+
+// Display the generated path as an animation
+function animatePath(path) {
+    console.log(path);
+    setProgressScale(1.0, .5);
+    setTimeout(setLoadingVisibility.bind(this, false), 500);
+
+    let person = app.stage.getChildByName("person");
+    let car = app.stage.getChildByName("car");
+    path = JSON.parse(path);
+    let path_length = path["action"].length;
+    let path_ind = 0;
+
+    const ticker = new PIXI.Ticker();
+    ticker.stop();
+    let time = 0.0;
+    ticker.add((delta) => {
+        time += delta;
+        if(time > 2) {
+            path_ind = (path_ind + 1) % path_length;
+            car.x = parseInt(path["car_x"][path_ind]) * unit;
+            car.y = (world_height - parseInt(path["car_y"][path_ind])) * unit;
+            person.x = parseInt(path["ped_x"][path_ind]) * unit;
+            person.y = (world_height - parseInt(path["ped_y"][path_ind])) * unit;
+            time = 0.0;
+        }
+    });
+    ticker.start();
 }

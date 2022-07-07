@@ -18,7 +18,7 @@ const double change_prob2 = 1 - change_prob1;
 const int block_height = 2;
 const int block_width = 5;
 const int block_x1 = 69; // crosswalk_pos - 20;
-const int block_y1 = 4; // sidewalk_height;
+const int block_y1 = 13; // sidewalk_height;
 const int block_x2 = 76; // block_x1 + block_width;
 const int block_y2 = 2; // sidewalk_height + block_height;
 
@@ -64,8 +64,8 @@ module Car
 endmodule
 
 module Pedestrian
-	ped_x : [0..street_length] init 85; // crosswalk_width / 2 = 10/2 = 5
-	ped_y : [0..world_height] init 10;
+	ped_x : [0..street_length] init 87; // crosswalk_width / 2 = 10/2 = 5
+	ped_y : [0..world_height] init 1;
 	
 
 	[] (is_on_sidewalk)&(turn = 1) -> // pedestrian choices from the sidewalk
