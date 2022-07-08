@@ -29,7 +29,10 @@ const int world_height = (sidewalk_height * 2) + crosswalk_height;
 
 global turn : [0..2] init 0;
 
+// simple bubble of ped and car within a certain distance of each other
 label "crash" = ((ped_x >= car_x) & (ped_x <= ped_x + car_width)) & ((ped_y >= car_y) & (ped_y <= car_y + car_height));
+
+// checks distances of pedestrian to car and vis line intersections from the car to the block
 label "blocked_vis" = blocked_view & ped_behind_block;
 
 formula dist = max(ped_x-car_x, car_x - ped_x) + max(ped_y - car_y, car_y - ped_y);	
@@ -43,6 +46,24 @@ formula x1 = car_x + car_width;
 formula y1 = car_y;
 formula x2 = ped_x;
 formula y2 = ped_y;
+
+formula int_s1 = (((y2 -  y1)/(x2 - x1))*(block_x1 - x1) + y1); // x = block_x1
+formula int_s2 = (((x2 - x1)/(y2 - y1))*(block_y2 - y1) + x1); // y = block_y2
+formula int_s3 = (((y2 -  y1)/(x2 - x1))*(block_x2 - x1) + y1); // x = block_x2
+formula int_s4 = (((x2 - x1)/(y2 - y1))*(block_y1 - y1) + x1); // y = block_y1
+
+// checks if there are intersections of the visibility line from car to pedestrian at each side of the block
+formula s1 = (int_s1 > block_y1) & (int_s1 < block_y2); // (block_x1, int_s1)
+formula s2 = (int_s2 > block_x1) & (int_s2 < block_x2); // (int_s2, block_y2)
+formula s3 = (int_s3 > block_y1) & (int_s3 < block_y2); // (block_x2, int_s3)
+formula s4 = (int_s4 > block_x1) & (int_s4 < block_x2); // (int_s4, block_y1)
+
+// distance formulas for car to pedestrian and each intersection (above)
+formula dist_ped = ((x2 - x1)*(x2 - x1)) + ((y2 - y1)*(y2 - y1));
+formula dist_s1 =  s1 ? ((block_x1 - x1)*(block_x1 - x1)) + ((int_s1 - y1)*(int_s1 - y1)) : 20000;
+formula dist_s2 = s2 ? ((int_s2 - x1)*(int_s2 - x1)) + ((block_y2 - y1)*(block_y2 - y2)) : 20000;
+formula dist_s3 = s3 ? ((block_x2 - x1)*(block_x2 - x1)) + ((int_s3 - y1)*(int_s3 - y1)) : 20000;
+formula dist_s4 = s4 ? ((int_s4 - x1)*(int_s4 - x1)) + ((int_s4 - y1)*(int_s4 - y1)) : 20000;
 
 //block in Q4 in realtion to car as origin. -- NOT Scalable
 formula blocked_view = (((((y2 -  y1)/(x2 - x1))*(block_x1 - x1) + y1) > block_y1) & ((((y2 -  y1)/(x2 - x1))*(block_x1 - x1) + y1) < block_y2)) | (((((x2 - x1)/(y2 - y1))*(block_y2 - y1) + x1) > block_x1) & ((((x2 - x1)/(y2 - y1))*(block_y2 - y1) + x1) < block_x2));
@@ -68,11 +89,12 @@ module Car
 	[] (turn = 0) -> // Stays the same speed
 		(car_x' = min(street_length, car_x + max(0, car_v)))&(turn' = 1);
 
-	[] (turn = 1)&((!blocked_view)|(!ped_behind_block)) ->
-		(visibility' = 0)&(turn' = 2);
-	[] (turn = 1)&(blocked_view)&(ped_behind_block) -> 
+	// changes the visibility variable so we know when the car is able/unable to see ped
+	[] (turn = 1)&(dist_ped < min(dist_s1, dist_s2, dist_s3, dist_s4)) ->
 		(visibility' = 1)&(turn' = 2);
-
+	[] (turn = 1)&(dist_ped >= min(dist_s1, dist_s2, dist_s3, dist_s4)) ->
+		(visibility' = 0)&(turn' = 2);
+	
 	[] (turn = 1)&(crash_over) -> (crashed' = 1);
 	
 endmodule
