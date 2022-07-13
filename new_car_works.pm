@@ -98,6 +98,10 @@ endmodule
 module Pedestrian
 	ped_x : [0..street_length] init (crosswalk_pos + 5); // {person_x}
 	ped_y : [0..world_height] init 0; //{person_y}
+
+	// assumptions:
+		// 1. pedestrian goal is to cross the street
+		// 2. pedestrian can only cross from the bottom of the screen to the top of the screen
 	
 	// 1. made two options, assuming the pedestrian is wanting to walk toward the crosswalk
 	// with the goal of crossing the street (forward = walk toward cross walk)
@@ -116,12 +120,35 @@ module Pedestrian
 	[] (turn = 2)&(ped_x > crosswalk_pos)&(ped_x < (crosswalk_pos + crosswalk_width)) ->
 		0.4: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
 		0.3: (ped_x' = max(ped_x - 1, 0))&(turn' = 0) + // Left
-		0.3:  (ped_x' = min(ped_x + 1, street_length))&(turn' = 0); // Right
+		0.3: (ped_x' = min(ped_x + 1, street_length))&(turn' = 0); // Right
 
-	// 3. 
-	[] (turn = 2)&(dist_ped < min(dist_s1, dist_s2, dist_s3, dist_s4))&(dist_ped <= ((car_v*car_v) + car_v)/2
+	// 3. 10% chance of crossing the street given the ped can see the car and is a certain distance away from the car
+	// and is at the crosswalk
+	// 90% chance of doing other things -- Figure that out
+	[] (turn = 2)&(dist_ped < min(dist_s1, dist_s2, dist_s3, dist_s4))&(dist_ped <= ((car_v*car_v) + car_v)/2)&(ped_x > crosswalk_pos)&(ped_x < (crosswalk_pos + crosswalk_width)) ->
 		0.1: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
+		0.45: (ped_x' = max(ped_x - 1, 0))&(turn' = 0) + // Left
+		0.45: (ped_x' = min(ped_x + 1, street_length))&(turn' = 0); // Right
 
+	// 4. condition for if pedestrian is crossing, then ...keep crossing, etx
+	[] (turn = 2)&(ped_y > sidewalk_height) ->
+		0.9: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
+		0.08: (ped_y' = max(ped_y - 1, 0))&(turn' = 0) + // Down
+		0.01: (ped_x' = max(ped_x - 1, 0))&(turn' = 0) + // Left
+		0.01: (ped_x' = min(ped_x + 1, street_length))&(turn' = 0); // Right
+
+	// 5. if ped crossing and car at a certain distance then the ped tries to avoid the car
+	[] (turn = 2)&(ped_y > sidewalk_height)&(dist_ped <= ((car_v*car_v) + car_v)/2) ->
+		// how to show that pedestrian is avoiding the car
+		// adding 40% probability that the pedestrian acts like "normal" like in action 4.
+		(0.3 + (0.4*0.9)):(ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
+		(0.3 + (0.4*0.08)): (ped_y' = max(ped_y - 1, 0))&(turn' = 0) + // Down
+		0.4*0.01: (ped_x' = max(ped_x - 1, 0))&(turn' = 0) + // Left
+		0.4*0.01: (ped_x' = min(ped_x + 1, street_length))&(turn' = 0); // Right
+
+		// 0.4: (extraVar' = 1);
+	// [] extraVar = 1 ->
+		// all the innards of the 4th action
 	
 	// uncomment this to end path simulation
 //	[] (turn = 2)&(crash_over) -> true;
