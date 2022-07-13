@@ -35,7 +35,7 @@ global turn : [0..2] init 0;
 label "crash" = ((ped_x >= car_x) & (ped_x <= car_x + car_width)) & ((ped_y >= car_y) & (ped_y <= car_y + car_height));
 
 // checks distances of pedestrian to car and vis line intersections from the car to the block
-label "blocked_vis" = (dist_ped >= min(dist_s1, dist_s2, dist_s3, dist_s4));
+// label "blocked_vis" = (dist_ped >= min(dist_s1, dist_s2, dist_s3, dist_s4));
 
 formula dist = max(ped_x-car_x, car_x - ped_x) + max(ped_y - car_y, car_y - ped_y);	
 formula safe_dist = dist > 15;
@@ -71,7 +71,7 @@ module Car
 	car_x : [0..street_length] init 0; // {car_x}
 	car_v : [0..max_speed] init 0;
 	car_y : [0..world_height] init 5; // {car_y}
-	visibility : bool init true;
+	visibility : bool init true; // change name to pedestrian awareness, cautious car might be more aware of ped it doesn't see
 	crashed : bool init false;
 
 	[] (turn = 0) & safe_dist -> // Accelerate
@@ -99,28 +99,29 @@ module Pedestrian
 	ped_x : [0..street_length] init (crosswalk_pos + 5); // {person_x}
 	ped_y : [0..world_height] init 0; //{person_y}
 	
-	[] (is_on_sidewalk)&(turn = 2) -> // pedestrian choices from the sidewalk
-		// (ped_x > crosswalk_pos)&(ped_x < (crosswalk_pos + crosswalk_width)) - a guard to check if ped can cross street here
-		0.25: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
-		0.25: (ped_y' = max(ped_y - 1, 0))&(turn' = 0) + // Down
-		0.25: (ped_x' = max(ped_x - 1, 0))&(turn' = 0) + // Left
-		0.25: (ped_x' = min(ped_x + 1, street_length))&(turn' = 0); // Right
-//	[] (is_on_sidewalk)&(ped_x < crosswalk_pos)&(ped_x > (crosswalk_pos + crosswalk_width))&(turn = 2) ->
-//		1/3: (ped_y' = max(ped_y - 1, 0))&(turn' = 0) + // Down
-//		1/3: (ped_x' = max(ped_x - 1, 0))&(turn' = 0) + // Left
-//		1/3: (ped_x' = min(ped_x + 1, street_length))&(turn' = 0); // Right
-//	[] (!is_on_sidewalk)&(turn = 2) -> // pedestrian choices from the crosswalk
-//		0.9: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
-//		0.1: (ped_y' = max(ped_y - 1, 0))&(turn' = 0); // Down
+	// 1. made two options, assuming the pedestrian is wanting to walk toward the crosswalk
+	// with the goal of crossing the street (forward = walk toward cross walk)
+	[] (turn = 2)&(is_on_sidewalk)&(ped_x < crosswalk_pos) ->
+		0.9: (ped_x' = min(ped_x + 1, street_length))&(turn' = 0) + // Right
+		0.08: (ped_x' = max(ped_x - 1, 0))&(turn' = 0) + // Left
+		0.02: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0); // Up
+	[] (turn = 2)&(is_on_sidewalk)&(ped_x > (crosswalk_pos + crosswalk_width)) ->
+		0.9: (ped_x' = max(ped_x - 1, 0))&(turn' = 0) + // Left
+		0.08: (ped_x' = min(ped_x + 1, street_length))&(turn' = 0) + // Right
+		0.02: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0); // Up
 
-	// trying to increase probability that ped is hidden from view of car
-	// ped crosses when car is close to crosswalk
-	[] (!is_on_sidewalk)&(turn = 2) -> // pedestrian choices from the crosswalk
-		0.5: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
-		0.5: (ped_y' = max(ped_y - 1, 0))&(turn' = 0); // Down
-	[] (!is_on_sidewalk)&(!safe_dist)&(turn = 2) -> // pedestrian choices from the crosswalk
-		0.9: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
-		0.1: (ped_y' = max(ped_y - 1, 0))&(turn' = 0); // Down
+	// 2. 40% probability of crossing street when at the crosswalk
+	// SUBJECT TO CHANGE
+	// 30% chance of walking left or right is it doesn't cross the street
+	[] (turn = 2)&(ped_x > crosswalk_pos)&(ped_x < (crosswalk_pos + crosswalk_width)) ->
+		0.4: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
+		0.3: (ped_x' = max(ped_x - 1, 0))&(turn' = 0) + // Left
+		0.3:  (ped_x' = min(ped_x + 1, street_length))&(turn' = 0); // Right
+
+	// 3. 
+	[] (turn = 2)&(dist_ped < min(dist_s1, dist_s2, dist_s3, dist_s4))&(dist_ped <= ((car_v*car_v) + car_v)/2
+		0.1: (ped_y' = min(ped_y + 1, world_height))&(turn' = 0) + // Up
+
 	
 	// uncomment this to end path simulation
 //	[] (turn = 2)&(crash_over) -> true;
